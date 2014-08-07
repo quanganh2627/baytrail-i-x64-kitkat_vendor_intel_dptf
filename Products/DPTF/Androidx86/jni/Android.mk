@@ -23,6 +23,13 @@
 #include $(call all-named-subdir-makefiles,$(modules))
 
 TOP_PATH := $(call my-dir)
+
+# Build pre-built gnustl_shared library
+LOCAL_PATH := $(ANDROID_BUILD_TOP)
+include $(CLEAR_VARS)
+LOCAL_PREBUILT_LIBS := prebuilts/ndk/current/sources/cxx-stl/gnu-libstdc++/4.8/libs/x86/libgnustl_shared.so
+include $(BUILD_MULTI_PREBUILT)
+
 include $(TOP_PATH)/SharedLib/Android.mk
 include $(TOP_PATH)/PolicyLib/Android.mk
 include $(TOP_PATH)/UnifiedParticipant/Android.mk

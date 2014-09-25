@@ -39,8 +39,7 @@ LOCAL_SHARED_LIBRARIES := \
         libcutils \
         libutils \
         liblog \
-        libdl \
-        libgnustl_shared
+        libdl
 
 LOCAL_CFLAGS += -std=c++11 -fexceptions -frtti -Wall -fPIC \
         -DESIF_ATTR_OS_ANDROID -DESIF_ATTR_USER \
@@ -50,6 +49,9 @@ LOCAL_STATIC_LIBRARIES := DptfPolicy DptfParticipant DptfShared
 
 FILE_LIST := $(wildcard $(LOCAL_PATH)/$(DPTF_SRC)/Policies/ActivePolicy/ActivePolicy/*.cpp)
 LOCAL_SRC_FILES := $(FILE_LIST:$(LOCAL_PATH)/%=%)
+
+LOCAL_SDK_VERSION := current
+LOCAL_NDK_STL_VARIANT := gnustl_shared
 
 include $(BUILD_SHARED_LIBRARY)
 

@@ -112,7 +112,7 @@
     #endif /* ESIF_ATTR_OS_WINDOWS */
 
     #ifdef ESIF_ATTR_OS_LINUX
-        #define esif_ccb_sprintf(siz, str, fmt, arg...)          sprintf(str, fmt, ##arg)
+        #define esif_ccb_sprintf(siz, str, fmt, arg...)          snprintf(str, siz, fmt, ##arg)
         #define esif_acpi_memcpy(out, in, len)                   esif_ccb_memcpy(out, in, len)
         #define esif_acpi_uni2ascii(out, out_len, in, in_len)    esif_ccb_uni2ascii(out, out_len, in, in_len)
     #endif
@@ -142,16 +142,16 @@
 #else
 #include <ctype.h>
 #include <stdarg.h>
-#define esif_ccb_sprintf(siz, str, fmt, arg...) sprintf(str, fmt, ##arg)
-#define esif_ccb_vsprintf(siz, str, fmt,arg...) vsprintf(str, fmt, ##arg)
+#define esif_ccb_sprintf(siz, str, fmt, arg...) snprintf(str, siz, fmt, ##arg)
+#define esif_ccb_vsprintf(siz, str, fmt,arg...) vsnprintf(str, siz, fmt, ##arg)
 #define esif_ccb_sscanf(str, fmt, var, siz)     sscanf(str, fmt, var)
-#define esif_ccb_strtok(str, sep, ctxt)         strtok(str, sep)
+#define esif_ccb_strtok(str, sep, ctxt)         strtok_r(str, sep, ctxt)
 #define esif_ccb_strcmp(s1, s2)                 strcmp(s1, s2)
 #define esif_ccb_stricmp(s1, s2)                strcasecmp(s1, s2)
 #define esif_ccb_strncmp(s1, s2, count)         strncmp(s1, s2, count)
 #define esif_ccb_strnicmp(s1, s2, cnt)          strncasecmp(s1, s2, cnt)
 #define esif_ccb_strstr(str, sub)               strstr(str, sub)
-#define esif_ccb_strlen(str, siz)               strlen(str)
+#define esif_ccb_strlen(str, siz)               strnlen(str, siz)
 #define esif_ccb_strdup_notrace(str)            strdup(str)
 
 // Linux _strupr_s() equlivalent
@@ -207,7 +207,7 @@ static ESIF_INLINE void esif_ccb_strcpy(char *dst, const char *src, size_t siz)
     strncpy(dst, src, siz);
     if (siz) dst[siz-1]=0;
 }
-#define esif_ccb_strcat(dst, src, size) strcat(dst, src)
+#define esif_ccb_strcat(dst, src, size) strncat(dst, src, size-strnlen(dst, size))
 #endif
 
 #define esif_ccb_max(a,b)            ((a) >= (b) ? (a) : (b))

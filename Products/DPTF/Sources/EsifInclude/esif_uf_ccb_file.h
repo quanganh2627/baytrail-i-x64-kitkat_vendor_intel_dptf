@@ -116,7 +116,7 @@ typedef HANDLE esif_ccb_file_find_handle;
 
 /* CCB File Abstraction */
 struct esif_ccb_file {
-    char  filename[MAX_PATH];
+    char  filename[MAX_PATH+1];
 };
 
 static ESIF_INLINE esif_ccb_file_find_handle esif_ccb_file_enum_first(
@@ -134,6 +134,8 @@ static ESIF_INLINE esif_ccb_file_find_handle esif_ccb_file_enum_first(
     esif_ccb_sprintf(MAX_PATH, full_path, "%s", path);
 
     find_handle = (esif_ccb_file_find_handle)esif_ccb_malloc(sizeof(struct esif_ccb_file_find));
+    if (!find_handle)
+        goto exit;
 
     find_handle->handle = opendir(full_path);
     if (INVALID_HANDLE_VALUE == find_handle->handle) {
@@ -148,6 +150,8 @@ static ESIF_INLINE esif_ccb_file_find_handle esif_ccb_file_enum_first(
         if (NULL != ffd && fnmatch(pattern, ffd->d_name, FNM_PATHNAME | FNM_NOESCAPE) == 0) { // found a match
             find_handle->matches++;
             find_handle->files = (char **)esif_ccb_realloc(find_handle->files, sizeof(char *) * find_handle->matches);
+            if (!find_handle->files)
+                continue;
             find_handle->files[find_handle->matches - 1] = esif_ccb_strdup(ffd->d_name);
         }
     } while (NULL != ffd);

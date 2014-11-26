@@ -22,7 +22,7 @@
 EsifFileEnumerator::EsifFileEnumerator(std::string path, std::string pattern) : m_path(path), m_pattern(pattern),
     m_fileHandle(INVALID_HANDLE_VALUE)
 {
-    esif_ccb_memset(m_file.filename, 0, MAX_PATH);
+    esif_ccb_memset(m_file.filename, 0, MAX_PATH + 1);
 }
 
 EsifFileEnumerator::~EsifFileEnumerator(void)
@@ -39,6 +39,7 @@ std::string EsifFileEnumerator::getFirstFile(void)
     esif_string pattern = const_cast<esif_string>(m_pattern.c_str());
 
     m_fileHandle = esif_ccb_file_enum_first(path, pattern, &m_file);
+    m_file.filename[MAX_PATH] = '\0';
 
     if (m_fileHandle == INVALID_HANDLE_VALUE)
     {
@@ -58,6 +59,7 @@ std::string EsifFileEnumerator::getNextFile(void)
     esif_string pattern = const_cast<esif_string>(m_pattern.c_str());
 
     esif_ccb_file* rc = esif_ccb_file_enum_next(m_fileHandle, pattern, &m_file);
+    m_file.filename[MAX_PATH] = '\0';
 
     if (rc == nullptr)
     {

@@ -119,6 +119,10 @@ struct esif_ccb_file {
     char  filename[MAX_PATH+1];
 };
 
+// Forward declartion as this function is used in esif_ccb_file_enum_first();
+
+static ESIF_INLINE void esif_ccb_file_enum_close(esif_ccb_file_find_handle find_handle);
+
 static ESIF_INLINE esif_ccb_file_find_handle esif_ccb_file_enum_first(
     esif_string path,
     esif_string pattern,
@@ -148,10 +152,15 @@ static ESIF_INLINE esif_ccb_file_find_handle esif_ccb_file_enum_first(
     do {
         ffd = readdir(find_handle->handle);
         if (NULL != ffd && fnmatch(pattern, ffd->d_name, FNM_PATHNAME | FNM_NOESCAPE) == 0) { // found a match
+            char **oldFiles = find_handle->files;
             find_handle->matches++;
             find_handle->files = (char **)esif_ccb_realloc(find_handle->files, sizeof(char *) * find_handle->matches);
-            if (!find_handle->files)
-                continue;
+            if (!find_handle->files) {
+                find_handle->files = oldFiles;
+                esif_ccb_file_enum_close(find_handle);
+                find_handle = INVALID_HANDLE_VALUE;
+                goto exit;
+            }
             find_handle->files[find_handle->matches - 1] = esif_ccb_strdup(ffd->d_name);
         }
     } while (NULL != ffd);
@@ -164,6 +173,7 @@ static ESIF_INLINE esif_ccb_file_find_handle esif_ccb_file_enum_first(
         find_handle->files[0] = NULL;
         goto exit;
     }
+
     closedir(find_handle->handle);
     esif_ccb_free(find_handle);
     find_handle = INVALID_HANDLE_VALUE; // no matches
